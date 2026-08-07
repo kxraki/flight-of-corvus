@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#06040F">
+<title>First Light — Act I: Light &amp; Distance</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Spectral:ital,wght@0,300;0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --void:#06040F;
+  --deep:#0B0820;
+  --panel:#120E2B;
+  --panel-2:#181334;
+  --edge:#2C2352;
+  --edge-soft:#221B42;
+  --star:#EFEBFF;
+  --soft:#A79FD4;
+  --faint:#6E6699;
+  --nebula:#A972FF;
+  --ion:#5FC8FF;
+  --ember:#FF7BA8;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+  --serif:"Spectral",Georgia,serif;
+  --pad:clamp(16px,4vw,28px);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--void);
+  color:var(--star);
+  font-family:var(--serif);
+  font-size:17px;line-height:1.62;
+  -webkit-font-smoothing:antialiased;
+  padding-bottom:70px;
+  overflow-x:hidden;
+}
+/* deep-field atmosphere: two nebula blooms + a scattered starfield */
+body::before{
+  content:"";position:fixed;inset:-10%;pointer-events:none;z-index:0;
+  background:
+    radial-gradient(58vw 46vw at 12% 4%, rgba(169,114,255,.20), transparent 62%),
+    radial-gradient(52vw 44vw at 92% 26%, rgba(43,110,255,.17), transparent 60%),
+    radial-gradient(64vw 52vw at 46% 108%, rgba(255,123,168,.09), transparent 62%);
+  filter:blur(6px);
+}
+body::after{
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.62;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='420' height='420'%3E%3Cg fill='%23fff'%3E%3Ccircle cx='31' cy='47' r='.8' opacity='.7'/%3E%3Ccircle cx='118' cy='19' r='.5' opacity='.45'/%3E%3Ccircle cx='203' cy='88' r='.9' opacity='.6'/%3E%3Ccircle cx='287' cy='34' r='.5' opacity='.4'/%3E%3Ccircle cx='371' cy='71' r='.7' opacity='.55'/%3E%3Ccircle cx='64' cy='139' r='.6' opacity='.5'/%3E%3Ccircle cx='156' cy='167' r='.9' opacity='.65'/%3E%3Ccircle cx='241' cy='131' r='.5' opacity='.38'/%3E%3Ccircle cx='334' cy='183' r='.8' opacity='.6'/%3E%3Ccircle cx='396' cy='146' r='.5' opacity='.42'/%3E%3Ccircle cx='22' cy='231' r='.7' opacity='.52'/%3E%3Ccircle cx='97' cy='268' r='1' opacity='.7'/%3E%3Ccircle cx='189' cy='243' r='.5' opacity='.4'/%3E%3Ccircle cx='268' cy='291' r='.8' opacity='.58'/%3E%3Ccircle cx='352' cy='257' r='.6' opacity='.46'/%3E%3Ccircle cx='47' cy='332' r='.9' opacity='.62'/%3E%3Ccircle cx='134' cy='377' r='.5' opacity='.4'/%3E%3Ccircle cx='217' cy='349' r='.7' opacity='.54'/%3E%3Ccircle cx='301' cy='394' r='.6' opacity='.47'/%3E%3Ccircle cx='388' cy='321' r='.9' opacity='.63'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+/* ---- daily image (NASA APOD) ---- */
+.apod{border:1px solid var(--edge);background:rgba(11,8,32,.72);margin:22px 0 0;overflow:hidden}
+.apod-head{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:11px 13px;font-family:var(--mono);font-size:10px;letter-spacing:.17em;text-transform:uppercase;color:var(--faint);border-bottom:1px solid var(--edge-soft)}
+.apod-head b{color:var(--ion);font-weight:500}
+.apod-body{display:flex;gap:0;flex-wrap:wrap}
+.apod-img{flex:0 0 168px;max-width:100%;position:relative;background:#0B0820;min-height:118px}
+.apod-img img{display:block;width:100%;height:100%;object-fit:cover;max-height:210px}
+.apod-txt{flex:1 1 250px;padding:14px 15px;min-width:0}
+.apod-txt h3{font-size:18px;font-weight:600;margin:0 0 7px;line-height:1.25}
+.apod-txt p{margin:0;font-size:15px;color:var(--soft);line-height:1.55}
+.apod-txt p.clip{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.apod-meta{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-top:11px;font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase}
+.apod-meta button{background:none;border:0;color:var(--nebula);cursor:pointer;font:inherit;padding:0;letter-spacing:.12em}
+.apod-meta button:hover{color:var(--star)}
+.apod-meta a{color:var(--soft);text-decoration:none;border-bottom:1px solid var(--edge)}
+.apod-meta .cr{color:var(--ember);text-transform:none;letter-spacing:.03em;font-size:10px}
+.apod-quiet{padding:13px 15px;font-family:var(--mono);font-size:11px;color:var(--faint);line-height:1.7}
+.apod-quiet code{color:var(--soft)}
+@media(max-width:520px){.apod-img{flex:1 1 100%}.apod-img img{max-height:170px}}
+.wrap{position:relative;z-index:1;max-width:720px;margin:0 auto;padding:0 var(--pad)}
+
+header{padding:30px 0 6px}
+.brand{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.brand h1{
+  font-family:var(--mono);font-weight:600;font-size:clamp(19px,4.6vw,25px);
+  letter-spacing:.17em;text-transform:uppercase;margin:0;
+  background:linear-gradient(96deg,#EFEBFF 12%,var(--nebula) 54%,var(--ion) 96%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.brand .act{font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--soft)}
+
+.strip{margin:22px 0 6px;border:1px solid var(--edge);background:rgba(18,14,43,.66);padding:13px 12px 9px;position:relative;backdrop-filter:blur(3px)}
+.strip::after{content:"ACT I — 12 SESSIONS";position:absolute;right:9px;bottom:-9px;background:var(--void);font-family:var(--mono);font-size:9px;letter-spacing:.14em;color:var(--faint);padding:0 6px}
+.frames{display:flex;gap:2px}
+.frame{flex:1;height:38px;border:0;background:transparent;cursor:pointer;position:relative;display:flex;align-items:center;justify-content:center;padding:0;font-family:var(--mono);font-size:9px;color:var(--faint)}
+.frame .dot{width:8px;height:8px;border-radius:50%;background:#332B57;transition:all .25s}
+.frame.done .dot{background:var(--ion);width:11px;height:11px;box-shadow:0 0 11px rgba(95,200,255,.85)}
+.frame.now .dot{background:var(--nebula);width:11px;height:11px;box-shadow:0 0 14px rgba(169,114,255,.95)}
+.frame.now::before{content:"";position:absolute;width:26px;height:26px;border:1.5px solid var(--nebula);border-radius:50%;opacity:.6}
+.frame .num{position:absolute;bottom:0}
+.frame:hover .dot{background:var(--soft)}
+.frame:focus-visible{outline:2px solid var(--nebula);outline-offset:1px}
+
+.eyebrow{font-family:var(--mono);font-size:10.5px;letter-spacing:.17em;text-transform:uppercase;color:var(--soft);display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin:32px 0 9px}
+.tag{border:1px solid var(--edge);padding:2px 7px;color:var(--faint)}
+h2.title{font-weight:600;font-size:clamp(27px,6.6vw,37px);line-height:1.13;margin:0 0 14px;letter-spacing:-.012em}
+.hook{font-size:18px;color:var(--star);opacity:.92;margin:0}
+
+.stage{border-top:1px solid var(--edge-soft);margin-top:28px;padding-top:19px}
+.stage[hidden]{display:none}
+.stage-label{font-family:var(--mono);font-size:10px;letter-spacing:.19em;text-transform:uppercase;color:var(--faint);margin-bottom:13px;display:flex;justify-content:space-between;gap:10px}
+.stage-label span:first-child{color:var(--nebula)}
+.q{font-size:19px;font-weight:600;margin:0 0 14px}
+
+.opts{display:flex;flex-direction:column;gap:8px}
+.opt{text-align:left;font-family:var(--serif);font-size:16px;line-height:1.45;background:rgba(18,14,43,.7);border:1px solid var(--edge);color:var(--star);padding:12px 14px;cursor:pointer;transition:background .16s,border-color .16s;display:flex;gap:11px;align-items:flex-start}
+.opt:hover:not(:disabled){background:rgba(44,35,82,.75);border-color:var(--nebula)}
+.opt:disabled{cursor:default;opacity:.42}
+.opt .k{font-family:var(--mono);font-size:11px;color:var(--faint);padding-top:3px;letter-spacing:.1em}
+.opt.picked{border-color:var(--nebula);border-width:1.5px;opacity:1;box-shadow:0 0 20px rgba(169,114,255,.16)}
+.opt.picked .k{color:var(--nebula)}
+.opt.truth{border-color:var(--ion);border-width:1.5px;opacity:1;box-shadow:0 0 20px rgba(95,200,255,.16)}
+.opt.truth .k{color:var(--ion)}
+.opt:focus-visible{outline:2px solid var(--nebula);outline-offset:2px}
+
+.sim{border:1px solid var(--edge);background:rgba(11,8,32,.82);margin:2px 0 15px}
+canvas{display:block;width:100%;height:auto}
+.ctrls{border-top:1px solid var(--edge-soft);padding:14px 14px 16px;display:flex;flex-direction:column;gap:14px}
+.ctrl label{font-family:var(--mono);font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--faint);display:flex;justify-content:space-between;gap:10px;margin-bottom:7px}
+.ctrl label b{color:var(--nebula);font-weight:500}
+input[type=range]{width:100%;-webkit-appearance:none;appearance:none;background:transparent;height:20px;margin:0}
+input[type=range]::-webkit-slider-runnable-track{height:1px;background:var(--edge)}
+input[type=range]::-moz-range-track{height:1px;background:var(--edge)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;height:15px;background:var(--nebula);border-radius:50%;margin-top:-7px;cursor:grab;box-shadow:0 0 12px rgba(169,114,255,.8)}
+input[type=range]::-moz-range-thumb{width:15px;height:15px;background:var(--nebula);border:0;border-radius:50%;cursor:grab}
+input[type=range]:focus-visible{outline:2px solid var(--nebula);outline-offset:3px}
+.readout{font-family:var(--mono);font-size:12px;color:var(--soft);padding:12px 14px;border-top:1px dashed var(--edge);line-height:1.75}
+.readout b{color:var(--ion);font-weight:500}
+.readout em{color:var(--star);font-style:italic}
+
+.notice{border-left:2px solid var(--nebula);padding:2px 0 2px 15px;margin:17px 0;font-size:16.5px}
+.verdict{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;margin:15px 0 0}
+.verdict.hit{color:var(--ion)}
+.verdict.miss{color:var(--ember)}
+
+/* ---- equation, unpacked ---- */
+.law{border:1px solid var(--edge);background:linear-gradient(163deg,rgba(169,114,255,.13),rgba(11,8,32,.5) 58%);padding:19px 17px;margin:6px 0 4px}
+.law .eq{font-family:var(--mono);font-size:clamp(17px,4.7vw,22px);letter-spacing:.02em;margin:0;color:var(--star);text-align:center;padding:6px 0 4px}
+.law .name{font-family:var(--mono);font-size:10px;letter-spacing:.17em;text-transform:uppercase;color:var(--nebula);margin:0 0 12px;text-align:center}
+.terms{margin:18px 0 0;border-top:1px solid var(--edge-soft);padding-top:15px;display:flex;flex-direction:column;gap:11px}
+.term{display:flex;gap:13px;align-items:baseline}
+.term .sym{font-family:var(--mono);font-size:14px;color:var(--ion);min-width:62px;flex-shrink:0}
+.term .def{font-size:15.5px;color:var(--soft);line-height:1.5}
+.term .def b{color:var(--star);font-weight:400}
+.why{margin:16px 0 20px;padding:16px 17px;border-left:2px solid var(--ion);background:rgba(95,200,255,.05)}
+.why h4{font-family:var(--mono);font-size:10px;letter-spacing:.17em;text-transform:uppercase;color:var(--ion);margin:0 0 9px}
+.why p{margin:0 0 11px;font-size:16px;color:var(--star);opacity:.93}
+.why p:last-child{margin:0}
+.why em{color:var(--nebula);font-style:italic}
+
+/* ---- in the wild ---- */
+.wild{border:1px solid var(--edge);background:rgba(255,123,168,.045);padding:17px 17px;margin:20px 0 6px;position:relative}
+.wild h4{font-family:var(--mono);font-size:10px;letter-spacing:.17em;text-transform:uppercase;color:var(--ember);margin:0 0 10px}
+.wild p{margin:0 0 11px;font-size:16px;line-height:1.6}
+.wild p:last-child{margin:0}
+.wild b{color:var(--ember);font-weight:400}
+
+.tool{border:1px dashed var(--edge);padding:14px 15px;margin:16px 0;background:rgba(18,14,43,.6)}
+.tool h4{font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;margin:0 0 9px;color:var(--soft)}
+.tool p{margin:0 0 11px;font-size:15.5px;color:var(--soft)}
+.tool p b{color:var(--star);font-weight:400}
+
+textarea{width:100%;min-height:100px;background:rgba(11,8,32,.8);border:1px solid var(--edge);padding:13px;font-family:var(--serif);font-size:16px;color:var(--star);resize:vertical;line-height:1.55}
+textarea::placeholder{color:var(--faint)}
+textarea:focus-visible{outline:2px solid var(--nebula);outline-offset:1px}
+
+button.act{font-family:var(--mono);font-size:11px;letter-spacing:.15em;text-transform:uppercase;background:var(--nebula);color:#0B0820;border:1px solid var(--nebula);padding:11px 18px;cursor:pointer;font-weight:500;transition:box-shadow .18s}
+button.act:hover{box-shadow:0 0 22px rgba(169,114,255,.55)}
+button.act.ghost{background:transparent;color:var(--soft);border-color:var(--edge)}
+button.act.ghost:hover{color:var(--star);border-color:var(--soft);box-shadow:none}
+button.act:focus-visible{outline:2px solid var(--ion);outline-offset:2px}
+.row{display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin-top:17px}
+.saved{font-family:var(--mono);font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--ion)}
+.prompt-note{font-size:15.5px;color:var(--soft);margin:0 0 12px;font-style:italic}
+footer{margin-top:46px;border-top:1px solid var(--edge-soft);padding:15px 0 0;font-family:var(--mono);font-size:10px;letter-spacing:.13em;text-transform:uppercase;color:var(--faint);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div class="brand"><h1>First Light</h1><span class="act">Act I · Light &amp; Distance</span></div>
+  <section class="apod" id="apod" hidden></section>
+  <nav class="strip" aria-label="Session progress"><div class="frames" id="frames"></div></nav>
+</header>
+<main id="main"></main>
+<footer><span id="fcount">—</span><span>build 0.2 · draft</span></footer>
+</div>
+<script>
+const Store=(()=>{let mem={};const K="firstlight.v2";
+  try{mem=JSON.parse(localStorage.getItem(K)||"{}")}catch(e){mem={}}
+  const save=()=>{try{localStorage.setItem(K,JSON.stringify(mem))}catch(e){}};
+  return{get:(k,d)=>(k in mem?mem[k]:d),set:(k,v)=>{mem[k]=v;save()}};})();
+
+/* stars now render as light on dark — glow scaled to flux */
+function blob(ctx,x,y,flux,maxR,col){
+  const r=Math.max(1.5,Math.min(maxR,3.1*Math.pow(Math.max(flux,.01),.30)));
+  const c=col||"239,235,255";
+  const g=ctx.createRadialGradient(x,y,0,x,y,r*3.1);
+  g.addColorStop(0,`rgba(${c},.95)`);g.addColorStop(.20,`rgba(${c},.42)`);
+  g.addColorStop(.52,`rgba(169,114,255,.16)`);g.addColorStop(1,`rgba(${c},0)`);
+  ctx.fillStyle=g;ctx.beginPath();ctx.arc(x,y,r*3.1,0,7);ctx.fill();
+  ctx.fillStyle=`rgba(255,253,255,.97)`;ctx.beginPath();ctx.arc(x,y,r*.62,0,7);ctx.fill();
+}
+function lbl(ctx,x,y,t,col){ctx.fillStyle=col||"#6E6699";ctx.font="500 11px 'IBM Plex Mono',monospace";ctx.textAlign="center";ctx.fillText(t,x,y)}
+function axis(ctx,x1,y1,x2,y2){ctx.strokeStyle="#2C2352";ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke()}
+function tempColour(T){let r,g,b,t=T/100;
+  if(t<=66){r=255;g=99.47*Math.log(t)-161.12}else{r=329.7*Math.pow(t-60,-.133);g=288.12*Math.pow(t-60,-.0755)}
+  if(t>=66)b=255;else if(t<=19)b=0;else b=138.5*Math.log(t-10)-305;
+  const c=v=>Math.max(0,Math.min(255,Math.round(v||0)));return[c(r),c(g),c(b)]}
+const rgb=a=>`rgb(${a[0]},${a[1]},${a[2]})`;
+
+const SIMS={
+inverse_square:{ctrls:[{id:"d1",label:"Star A — distance",min:1,max:10,step:.1,val:2,unit:"×"},{id:"d2",label:"Star B — distance",min:1,max:10,step:.1,val:2,unit:"×"}],
+ draw(ctx,w,h,v){const fA=100/(v.d1*v.d1),fB=25/(v.d2*v.d2);
+  blob(ctx,w*.30,h*.45,fA,26);lbl(ctx,w*.30,h*.45+56,"A");
+  blob(ctx,w*.70,h*.45,fB,26);lbl(ctx,w*.70,h*.45+56,"B");
+  lbl(ctx,w/2,h-13,"A truly emits 4× more light than B — always","#4A4370");v._f=[fA,fB]},
+ read(v){const[a,b]=v._f||[0,0];return `Light reaching us — A: <b>${a.toFixed(1)}</b> · B: <b>${b.toFixed(1)}</b><br>`+
+  (a>b?"A looks brighter":b>a?"B looks brighter — and it is the weaker star":"identical, from two different stars")+
+  `. <em>Apparent brightness mixes two things you cannot separate.</em>`}},
+
+mag_scale:{ctrls:[{id:"ratio",label:"A is this many times brighter than B",min:1,max:100,step:1,val:1,unit:"×"}],
+ draw(ctx,w,h,v){blob(ctx,w*.32,h*.43,10*v.ratio,30);lbl(ctx,w*.32,h*.43+58,"A");
+  blob(ctx,w*.68,h*.43,10,30);lbl(ctx,w*.68,h*.43+58,"B");
+  const dm=2.5*Math.log10(v.ratio);ctx.fillStyle="#A972FF";ctx.font="500 13px 'IBM Plex Mono',monospace";ctx.textAlign="center";
+  ctx.fillText(`Δm = ${dm.toFixed(2)}`,w/2,h-16);v._dm=dm},
+ read(v){return `Ratio <b>${v.ratio}×</b> → magnitude gap <b>${(v._dm||0).toFixed(2)}</b><br>`+
+  `<em>Multiply the ratio by 100 and the gap only adds 5.</em> Ratios in, differences out.`}},
+
+abs_mag:{ctrls:[{id:"d",label:"Move the star",min:1,max:1000,step:1,val:10,unit:" pc"}],
+ draw(ctx,w,h,v){const M=-2.5,m=M+5*Math.log10(v.d/10);
+  blob(ctx,w/2,h*.43,90000/(v.d*v.d),34);lbl(ctx,w/2,h*.43+60,"the same star, moved");
+  ctx.fillStyle="#EFEBFF";ctx.font="500 13px 'IBM Plex Mono',monospace";ctx.textAlign="center";
+  ctx.fillText(`m = ${m.toFixed(2)}`,w*.34,h-16);ctx.fillStyle="#5FC8FF";ctx.fillText(`M = ${M.toFixed(2)}`,w*.66,h-16);v._m=m},
+ read(v){return `Apparent <b>m = ${(v._m||0).toFixed(2)}</b> slides. Absolute <b>M = −2.50</b> never budges.<br><em>M is a label for the star. m is a label for your viewpoint.</em>`}},
+
+parallax:{ctrls:[{id:"d",label:"Distance to star",min:1,max:60,step:1,val:10,unit:" pc"}],
+ draw(ctx,w,h,v){const cx=w*.16,cy=h/2,R=30;
+  ctx.strokeStyle="#2C2352";ctx.setLineDash([3,4]);ctx.beginPath();ctx.ellipse(cx,cy,R,R*.34,0,0,7);ctx.stroke();ctx.setLineDash([]);
+  const sx=w*.86,shift=260/v.d;
+  blob(ctx,sx,cy-shift/2,55,11);blob(ctx,sx,cy+shift/2,55,11);
+  ctx.strokeStyle="rgba(169,114,255,.55)";ctx.lineWidth=1;
+  [[cx-R,cy],[cx+R,cy]].forEach((p,i)=>{ctx.beginPath();ctx.moveTo(p[0],p[1]);ctx.lineTo(sx,cy+(i?1:-1)*shift/2);ctx.stroke()});
+  ctx.fillStyle="#5FC8FF";[[-R],[R]].forEach(o=>{ctx.beginPath();ctx.arc(cx+o[0],cy,3.4,0,7);ctx.fill()});
+  lbl(ctx,cx,cy+36,"Earth, 6 months apart");lbl(ctx,sx,cy+shift/2+30,"apparent shift","#A972FF");v._p=1/v.d},
+ read(v){return `Parallax <b>p = ${(v._p||0).toFixed(3)}″</b> → distance <b>${v.d} pc</b><br><em>Push it further and the wobble dies.</em> This is the only rung measured by pure geometry.`}},
+
+colour_temp:{ctrls:[{id:"T",label:"Surface temperature",min:2500,max:30000,step:100,val:5800,unit:" K"}],
+ draw(ctx,w,h,v){const c=tempColour(v.T);
+  const g=ctx.createRadialGradient(w/2,h*.43,0,w/2,h*.43,86);
+  g.addColorStop(0,`rgba(${c[0]},${c[1]},${c[2]},1)`);g.addColorStop(.44,`rgba(${c[0]},${c[1]},${c[2]},.55)`);
+  g.addColorStop(1,`rgba(${c[0]},${c[1]},${c[2]},0)`);ctx.fillStyle=g;ctx.beginPath();ctx.arc(w/2,h*.43,86,0,7);ctx.fill();
+  ctx.fillStyle=rgb(c);ctx.beginPath();ctx.arc(w/2,h*.43,40,0,7);ctx.fill();
+  lbl(ctx,w/2,h-17,v.T<3900?"class M — cool, red":v.T<5300?"class K — orange":v.T<6000?"class G — like the Sun":v.T<7300?"class F — yellow-white":v.T<10000?"class A — white":"class B/O — blue-white","#A79FD4")},
+ read(v){return `<b>${v.T.toLocaleString()} K</b>. <em>Colour is a thermometer you can read from 400 light years away.</em>`}},
+
+wien:{ctrls:[{id:"T",label:"Temperature",min:2500,max:30000,step:100,val:5800,unit:" K"}],
+ draw(ctx,w,h,v){const L=44,R=w-18,B=h-34,T0=16,peak=2.898e-3/v.T*1e9,maxNm=1800;
+  for(let x=L;x<R;x++){const nm=(x-L)/(R-L)*maxNm;if(nm<380||nm>700)continue;
+   const c=tempColour(1e7/nm*.55);ctx.fillStyle=`rgba(${c[0]},${c[1]},${c[2]},.13)`;ctx.fillRect(x,T0,1,B-T0)}
+  axis(ctx,L,B,R,B);axis(ctx,L,B,L,T0);
+  const Ip=1/(Math.pow(peak*1e-9,5)*(Math.exp(1.4388e-2/(peak*1e-9*v.T))-1));
+  ctx.strokeStyle="#5FC8FF";ctx.lineWidth=1.7;ctx.shadowColor="rgba(95,200,255,.6)";ctx.shadowBlur=9;ctx.beginPath();
+  for(let i=0;i<=180;i++){const nm=10+i*(maxNm/180),lam=nm*1e-9;
+   const I=1/(Math.pow(lam,5)*(Math.exp(1.4388e-2/(lam*v.T))-1));
+   const x=L+(nm/maxNm)*(R-L),y=B-(I/Ip)*(B-T0)*.92;i?ctx.lineTo(x,y):ctx.moveTo(x,y)}
+  ctx.stroke();ctx.shadowBlur=0;
+  const px=L+(peak/maxNm)*(R-L);
+  if(px<R){ctx.strokeStyle="#A972FF";ctx.setLineDash([3,3]);ctx.beginPath();ctx.moveTo(px,B);ctx.lineTo(px,T0+6);ctx.stroke();ctx.setLineDash([]);
+   lbl(ctx,Math.min(px,R-32),T0+2,`${peak.toFixed(0)} nm`,"#A972FF")}
+  lbl(ctx,L+(540/maxNm)*(R-L),B+16,"visible");lbl(ctx,R-22,B+16,"→ λ");v._p=peak},
+ read(v){return `Peak at <b>${(v._p||0).toFixed(0)} nm</b>. Heat it and the whole curve rises <em>and</em> the peak marches left toward blue.`}},
+
+stefan:{ctrls:[{id:"R",label:"Radius",min:.2,max:12,step:.1,val:1,unit:" R☉"},{id:"T",label:"Temperature",min:2500,max:20000,step:100,val:5800,unit:" K"}],
+ draw(ctx,w,h,v){const c=tempColour(v.T),r=Math.min(56,9*Math.pow(v.R,.62));
+  ctx.strokeStyle="#4A4370";ctx.setLineDash([2,3]);ctx.beginPath();ctx.arc(w/2,h*.45,9,0,7);ctx.stroke();ctx.setLineDash([]);
+  const g=ctx.createRadialGradient(w/2,h*.45,0,w/2,h*.45,r*2.1);
+  g.addColorStop(0,`rgba(${c[0]},${c[1]},${c[2]},.9)`);g.addColorStop(.5,`rgba(${c[0]},${c[1]},${c[2]},.28)`);
+  g.addColorStop(1,`rgba(${c[0]},${c[1]},${c[2]},0)`);ctx.fillStyle=g;ctx.beginPath();ctx.arc(w/2,h*.45,r*2.1,0,7);ctx.fill();
+  ctx.fillStyle=rgb(c);ctx.beginPath();ctx.arc(w/2,h*.45,r,0,7);ctx.fill();
+  lbl(ctx,w/2,h-15,"dashed circle = the Sun, to scale");
+  v._L=Math.pow(v.R,2)*Math.pow(v.T/5772,4)},
+ read(v){return `Luminosity <b>${(v._L||0)<1000?(v._L||0).toFixed(1):(v._L||0).toExponential(1)} L☉</b><br>Radius counts twice. Temperature counts <em>four times</em> — double the heat, sixteen times the light.`}},
+
+spectrum:{ctrls:[{id:"T",label:"Star temperature",min:3000,max:25000,step:100,val:5800,unit:" K"}],
+ draw(ctx,w,h,v){const L=18,R=w-18,B=h-40,T0=22;
+  for(let x=L;x<R;x++){const nm=380+((x-L)/(R-L))*320;const c=tempColour(1e7/nm*.55);
+   ctx.fillStyle=`rgba(${c[0]},${c[1]},${c[2]},.9)`;ctx.fillRect(x,T0,1,B-T0)}
+  [["H",656],["H",486],["H",434],["Na",589],["Ca",393],["Fe",527],["He",447]].forEach(([el,nm])=>{
+   let s=el==="H"?Math.exp(-Math.pow((v.T-9500)/4200,2)):el==="He"?1/(1+Math.exp(-(v.T-15000)/2200)):1-1/(1+Math.exp(-(v.T-6200)/1100));
+   if(s<.07)return;const x=L+((nm-380)/320)*(R-L);
+   ctx.fillStyle=`rgba(6,4,15,${Math.min(1,s*1.15)})`;ctx.fillRect(x-1.2,T0,2.4+s*1.4,B-T0);
+   lbl(ctx,x,B+14,el,"#A79FD4")});
+  lbl(ctx,L+18,B+30,"380 nm");lbl(ctx,R-22,B+30,"700 nm")},
+ read(v){const T=v.T;return `Each dark line is a wavelength absorbed by atoms in the star's own atmosphere.<br>`+
+  (T<5000?"Cool: metals like Ca and Na dominate.":T<11000?"Hydrogen lines peak around 9,500 K — strongest here.":"Too hot for strong hydrogen; helium takes over.")+
+  ` <em>Line strength tracks temperature, not what the star is made of.</em>`}},
+
+doppler:{ctrls:[{id:"v",label:"Motion along our line of sight",min:-3000,max:3000,step:50,val:0,unit:" km/s"}],
+ draw(ctx,w,h,v){const L=18,R=w-18,B=h-42;
+  const band=(y,shift,tag)=>{for(let x=L;x<R;x++){const nm=380+((x-L)/(R-L))*320;const c=tempColour(1e7/nm*.55);
+    ctx.fillStyle=`rgba(${c[0]},${c[1]},${c[2]},.85)`;ctx.fillRect(x,y,1,34)}
+   [656,486,434,589].forEach(nm=>{const o=nm*(1+shift),x=L+((o-380)/320)*(R-L);if(x<L||x>R)return;
+    ctx.fillStyle="rgba(6,4,15,.95)";ctx.fillRect(x-1.3,y,2.6,34)});
+   ctx.textAlign="left";ctx.fillStyle="#6E6699";ctx.font="500 10px 'IBM Plex Mono',monospace";ctx.fillText(tag,L,y-6)};
+  band(28,0,"LAB REFERENCE");band(94,v.v/299792,"THE STAR");
+  ctx.strokeStyle="rgba(169,114,255,.65)";ctx.setLineDash([2,3]);
+  [656,486,434,589].forEach(nm=>{const x=L+((nm-380)/320)*(R-L);ctx.beginPath();ctx.moveTo(x,28);ctx.lineTo(x,128);ctx.stroke()});
+  ctx.setLineDash([]);
+  lbl(ctx,w/2,B+28,v.v>40?"redshifted — receding":v.v<-40?"blueshifted — approaching":"no shift",v.v?"#A972FF":"#6E6699")},
+ read(v){return `v = <b>${v.v} km/s</b> · Δλ/λ = <b>${(v.v/299792).toFixed(5)}</b><br>The <em>pattern</em> never changes — only its position. That rigidity is what makes it measurable.`}},
+
+cepheid:{ctrls:[{id:"P",label:"Pulsation period",min:1,max:60,step:1,val:10,unit:" days"}],
+ draw(ctx,w,h,v){const L=42,R=w-16,B=h-34,T0=18,M=-2.81*Math.log10(v.P)-1.43;
+  axis(ctx,L,B,R,B);axis(ctx,L,B,L,T0);
+  const amp=(B-T0)*.28,mid=(B+T0)/2-(M+6)*4;
+  ctx.strokeStyle="#A972FF";ctx.lineWidth=1.7;ctx.shadowColor="rgba(169,114,255,.6)";ctx.shadowBlur=8;ctx.beginPath();
+  for(let i=0;i<=220;i++){const s=(i/220*3)%1;
+   const y=mid-amp*(s<.25?s/.25:1-((s-.25)/.75))+amp/2,x=L+(i/220)*(R-L);i?ctx.lineTo(x,y):ctx.moveTo(x,y)}
+  ctx.stroke();ctx.shadowBlur=0;lbl(ctx,w/2,B+16,"three cycles");
+  ctx.save();ctx.translate(13,(B+T0)/2);ctx.rotate(-Math.PI/2);lbl(ctx,0,0,"brighter →");ctx.restore();v._M=M},
+ read(v){return `Period <b>${v.P} d</b> → absolute magnitude <b>M = ${(v._M||0).toFixed(2)}</b><br><em>Time the pulse and you know its true output.</em> Compare with how bright it looks — that is the distance.`}},
+
+ladder:{ctrls:[{id:"logd",label:"Distance to your target",min:0,max:10,step:.1,val:2,unit:""}],
+ draw(ctx,w,h,v){const L=26,R=w-16;
+  [["Radar / radio",-3,-2.5,0],["Parallax",-2.5,4.5,1],["Cepheids",3,7.5,2],["Type Ia supernovae",6,9.7,3],["Hubble's law",7.5,11,4]].forEach(([n,a,b,i])=>{
+   const y=34+i*30,x1=L+((a+3)/14)*(R-L),x2=L+((b+3)/14)*(R-L),on=v.logd>=a&&v.logd<=b;
+   ctx.strokeStyle=on?"#A972FF":"#2C2352";ctx.lineWidth=on?3:1.4;
+   if(on){ctx.shadowColor="rgba(169,114,255,.7)";ctx.shadowBlur=8}
+   ctx.beginPath();ctx.moveTo(x1,y);ctx.lineTo(x2,y);ctx.stroke();ctx.shadowBlur=0;
+   ctx.fillStyle=on?"#EFEBFF":"#6E6699";ctx.font=`${on?500:400} 11px 'IBM Plex Mono',monospace`;ctx.textAlign="left";ctx.fillText(n,x1+4,y-8)});
+  const x=L+((v.logd+3)/14)*(R-L);ctx.strokeStyle="#5FC8FF";ctx.setLineDash([2,3]);
+  ctx.beginPath();ctx.moveTo(x,20);ctx.lineTo(x,h-26);ctx.stroke();ctx.setLineDash([]);
+  lbl(ctx,w/2,h-9,"each rung is calibrated by the one below it");v._d=Math.pow(10,v.logd)},
+ read(v){const d=v._d||1;return `Target: <b>${d<1e4?d.toFixed(0)+" pc":(d/1e6).toExponential(1)+" Mpc"}</b><br>`+
+  `<em>The ladder is only as sound as its bottom rung</em> — and the bottom rung is geometry.`}},
+
+hr:{ctrls:[{id:"pick",label:"Reveal stars",min:0,max:36,step:1,val:0,unit:" plotted"}],
+ draw(ctx,w,h,v){const L=44,R=w-16,B=h-32,T0=16;
+  axis(ctx,L,B,R,B);axis(ctx,L,B,L,T0);
+  const st=[];for(let i=0;i<28;i++){const t=i/27;st.push([30000-t*27000,Math.pow(10,4.4-t*5.4)])}
+  st.push([3500,300],[3800,900],[4200,2500],[3200,6000],[9000,.004],[12000,.002],[7000,.008],[25000,.01]);
+  const X=T=>L+(1-(Math.log10(T)-3.4)/1.1)*(R-L),Y=Lu=>B-((Math.log10(Lu)+4.5)/9)*(B-T0);
+  st.slice(0,v.pick).forEach(([T,Lu])=>{const c=tempColour(T);
+   const g=ctx.createRadialGradient(X(T),Y(Lu),0,X(T),Y(Lu),9);
+   g.addColorStop(0,`rgba(${c[0]},${c[1]},${c[2]},.95)`);g.addColorStop(1,`rgba(${c[0]},${c[1]},${c[2]},0)`);
+   ctx.fillStyle=g;ctx.beginPath();ctx.arc(X(T),Y(Lu),9,0,7);ctx.fill();
+   ctx.fillStyle=rgb(c);ctx.beginPath();ctx.arc(X(T),Y(Lu),3,0,7);ctx.fill()});
+  lbl(ctx,w/2,B+16,"← hotter    temperature    cooler →");
+  ctx.save();ctx.translate(13,(B+T0)/2);ctx.rotate(-Math.PI/2);lbl(ctx,0,0,"luminosity →");ctx.restore()},
+ read(v){return v.pick<6?`Plot more. Right now it is scatter.`:v.pick<26?`A band is forming — hot-and-bright down to cool-and-faint.`:
+  `That diagonal is the <b>main sequence</b> — about 90% of stars. Top-right: giants, cool but vast. Bottom-left: white dwarfs, hot but tiny.<br><em>Nobody designed this. Plot two measured numbers and the structure falls out.</em>`}}
+};
+const SESSIONS=[
+{n:1,title:"Brightness lies",ioaa:"Ch. 6 — Stellar Observations",tool:null,
+ hook:"Two stars in the same frame. One is unmistakably brighter than the other.",
+ q:"Which one is closer to us?",
+ opts:["The brighter one — that's what brightness means","The fainter one, if it's much bigger","There is no way to tell from this alone","Depends on their colours"],truth:2,sim:"inverse_square",
+ notice:"Set both to the same distance. Then drag them apart. Can you make the weaker star outshine the stronger one?",
+ law:{name:"The inverse-square law",eq:"b  =  L / 4πd²",
+  terms:[["b","<b>what you receive</b> — energy landing on each square metre of your detector every second. This is all a telescope ever measures."],
+         ["L","<b>what the star emits</b> — its total power output in every direction. A fact about the star itself, unchanged by where you stand."],
+         ["d","your distance from it."],
+         ["4πd²","the surface area of a sphere of radius d — <b>and this is the whole idea.</b>"]],
+  why:["Picture the star switching on. Every second it releases L joules, spraying outward in all directions at once. That energy is not destroyed as it travels — it is only <em>spread thinner</em>.",
+       "At distance d, all of it is passing through an imaginary sphere with you sitting on its surface. Sphere area is 4πd². So the energy hitting your square metre is simply the total, divided by the area it now has to cover: L over 4πd².",
+       "The square is not a rule someone imposed. It falls out of the fact that <em>area grows as the square of length</em>. Go twice as far and the same energy covers four times the area, so each patch gets a quarter. That is all.",
+       "Which leaves you stuck: one equation, one measurement (b), two unknowns (L and d). <em>You cannot solve it.</em> The rest of Act I is eleven different ways of sneaking around this problem."]},
+ fact:{body:["Your phone's torch lights a wall brilliantly at arm's length and does essentially nothing across a football pitch. Same bulb, same L — the light just had far more sphere to cover.",
+  "Mars orbits 1.52× further from the Sun than Earth. So Martian sunlight is 1/1.52² ≈ <b>43%</b> of ours — a number that directly sets how large a rover's solar panels must be. NASA sized Spirit and Opportunity's panels off exactly this arithmetic.",
+  "And it is why studio photographers move a softbox <em>closer</em> rather than turning it up. Halving the distance quadruples the light for free."]},
+ drill:{q:"Move a star three times further away. Its apparent brightness becomes:",opts:["⅓","⅙","1/9","1/27"],truth:2},
+ prompt:"What did you assume about brightness before this session that you'd now put differently?"},
+
+{n:2,title:"A scale built backwards",ioaa:"Ch. 6 — Stellar Observations",tool:"logs",
+ hook:"Around 130 BC, Hipparchus sorted the visible stars into six classes — brightest to faintest. We never replaced his scale. We only made it exact.",
+ q:"On the magnitude scale, a magnitude 1 star compared with magnitude 6 is:",
+ opts:["6 times brighter","5 times brighter","100 times brighter","Fainter, not brighter"],truth:2,sim:"mag_scale",
+ notice:"Slide to 100×. Read the gap. Now picture 10,000× — predict the gap before you work it out.",
+ law:{name:"The magnitude difference",eq:"m₁ − m₂  =  −2.5 log₁₀ ( b₁ / b₂ )",
+  terms:[["b₁ / b₂","<b>the ratio</b> of how bright the two look. Not the difference — the ratio. This is the physically meaningful comparison."],
+         ["log₁₀","<b>the translator.</b> It converts a ratio into a count of tens, turning multiplication into addition."],
+         ["2.5","<b>a calibration constant</b>, chosen by hand in 1856 — not derived from anything."],
+         ["−","<b>Hipparchus's ghost.</b> Smaller number means brighter star, because he counted the best ones first."]],
+  why:["When 19th-century astronomers finally measured Hipparchus's classes properly, they found something striking: his class 1 stars were almost exactly <em>100 times</em> brighter than his class 6. Five steps, one factor of a hundred.",
+       "That was no accident. Human senses respond to ratios, not amounts — a step that <em>feels</em> equal is a constant multiplication, not a constant addition. Hipparchus, eyeballing, had unknowingly built a logarithmic scale.",
+       "So Norman Pogson fixed it in place: define one magnitude step as the fifth root of 100, about 2.512×. Then five steps multiply out to exactly 100.",
+       "Where does 2.5 come from? Ask what number, times log₁₀(100), gives 5. Since log₁₀(100) = 2, you need 2.5. <em>The constant is reverse-engineered to preserve an ancient Greek's eyeball judgements.</em>",
+       "This is worth sitting with: a working scientific unit, in use today, shaped by a 2,000-year-old naked-eye survey. Astronomy is full of these fossils."]},
+ fact:{body:["Decibels do the identical job for sound, and the Richter scale for earthquakes. All three exist because <b>your senses are logarithmic</b> — a principle called the Weber–Fechner law. Doubling a sound's power doesn't feel twice as loud; it feels like one small step.",
+  "For scale, the faintest star a good eye catches on a dark night is about magnitude 6. Sirius sits at −1.46. The full Moon, −12.7. The Sun, <b>−26.7</b> — some 400,000× brighter than the full Moon.",
+  "The James Webb Space Telescope reaches roughly magnitude 34. That is around 250 billion times fainter than your unaided eye can manage."]},
+ drill:{q:"A is 100× brighter than B. B is 100× brighter than C. The gap from A to C is:",opts:["10 magnitudes","25 magnitudes","5 magnitudes","200 magnitudes"],truth:0},
+ prompt:"Where else in your life have you met a scale that turns multiplying into adding?"},
+
+{n:3,title:"The same star, moved",ioaa:"Ch. 6 — Stellar Observations",tool:null,
+ hook:"You now have a precise way to record how bright something looks. It still tells you nothing about the star.",
+ q:"To compare stars fairly, astronomers agreed to:",
+ opts:["Only observe stars at equal distances","Work out how bright each would look at one standard distance","Measure in watts instead of magnitudes","Correct for atmospheric absorption"],truth:1,sim:"abs_mag",
+ notice:"Drag from 10 pc out to 1000 pc. Watch which number moves, and which one refuses to.",
+ law:{name:"The distance modulus",eq:"m − M  =  5 log₁₀ ( d / 10 pc )",
+  terms:[["m","apparent magnitude — how bright it <b>looks from here</b>."],
+         ["M","absolute magnitude — how bright it <b>would look from 10 pc</b>. A property of the star alone."],
+         ["m − M","<b>the modulus itself.</b> A single number that means 'distance', dressed in magnitude clothing."],
+         ["10 pc","an arbitrary agreed standard. It could have been anything; someone had to pick."]],
+  why:["The trick is to stop fighting the two-unknowns problem and instead <em>define</em> one of them away. M is just m re-imagined at a fixed distance — a fair basis for comparison, like quoting every salary in one currency.",
+       "Watch it fall out. From Session 1, brightness scales as 1/d². So the ratio between how bright it looks now and how it would look at 10 pc is (10/d)².",
+       "Feed that into Session 2's magnitude equation: m − M = −2.5 log₁₀[(10/d)²]. The square comes down as a factor of 2, giving −5 log₁₀(10/d). Flipping the fraction flips the sign: <em>5 log₁₀(d/10)</em>.",
+       "So this is not a new law at all. It is Sessions 1 and 2 multiplied together — the geometry of spreading light, written in Hipparchus's units.",
+       "And it is startlingly practical. Know any two of m, M, d and the third is yours. Almost every distance claim in astronomy passes through this line."]},
+ fact:{body:["This one equation is how we know the Andromeda galaxy sits about 2.5 million light years away — measure m for a star in it, get M from what kind of star it is, subtract.",
+  "The ESA Gaia mission has done this for roughly <b>1.5 billion stars</b>, building the most detailed three-dimensional map of the Milky Way that exists. When you see an image of our galaxy's spiral structure, it is largely Gaia's distance modulus arithmetic rendered as art.",
+  "There is a catch that keeps astronomers up at night: dust between us and the star absorbs light, making m too large and the star seem further than it is. Untangling <em>extinction</em> from distance is a whole research field."]},
+ drill:{q:"A star has m = 8 and M = 3. It is:",opts:["Closer than 10 pc","Exactly 10 pc away","Further than 10 pc","Not enough information"],truth:2},
+ prompt:"Why is it worth the awkward definition to have one number that means 'distance'?"},
+
+{n:4,title:"The wobble that measures everything",ioaa:"Ch. 3 — Geometric Astronomy",tool:"trig",
+ hook:"Hold a finger up and blink each eye in turn. It jumps against the background. Earth's orbit is a very wide pair of eyes.",
+ q:"A star twice as far away shows a parallax angle that is:",
+ opts:["Half as large","A quarter as large","Twice as large","Unchanged"],truth:0,sim:"parallax",
+ notice:"Push the star out to 60 pc. The shift nearly vanishes — this is precisely why the method has a hard range limit.",
+ law:{name:"The parallax–distance relation",eq:"d (parsec)  =  1 / p (arcsec)",
+  terms:[["p","<b>half</b> the angle the star appears to shift over six months, in arcseconds. One arcsecond is 1/3600 of a degree."],
+         ["d","distance, in parsecs."],
+         ["parsec","<b>PAR</b>allax-<b>SEC</b>ond: the distance at which p = 1″. About 3.26 light years."]],
+  why:["The real geometry is a long thin triangle: Earth's orbital radius (1 AU) on the short side, the star at the far apex. Properly, tan p = 1 AU / d.",
+       "But astronomical angles are minuscule — under one arcsecond for every star. And for tiny angles, <em>tan p ≈ p</em> in radians, because a sliver of a circle is indistinguishable from a straight line. The trigonometry collapses into plain division: p ≈ 1 AU / d.",
+       "Now the sleight of hand. Rather than carry unit conversions forever, astronomers <em>defined a distance unit that makes the constants vanish</em>. Measure p in arcseconds, measure d in parsecs, and the equation reduces to d = 1/p.",
+       "So the parsec is not a round number of anything. It is 3.26 light years for no reason except that this makes the arithmetic disappear. <em>The unit was built to serve the equation, not the other way round.</em>",
+       "And note what is absent: nothing about the star's brightness, size, colour, or composition. This is pure triangle. That purity is why everything else in the ladder ultimately leans on it."]},
+ fact:{body:["Your own depth perception is parallax with a 6.5 cm baseline. Astronomy's baseline is Earth's orbit — about 300 million km, or 4.6 billion times wider.",
+  "Proxima Centauri, the nearest star, has p = 0.768″ — meaning 1.30 pc. That is the largest stellar parallax in the sky, and it is still smaller than a coin viewed from four kilometres away.",
+  "Gaia measures angles down to about <b>20 microarcseconds</b>. That is the width of a human hair seen from 1,000 km — roughly spotting a hair in Bangkok from Singapore.",
+  "Which is also why parallax runs out. Beyond a few thousand parsecs the wobble drops below what any instrument can resolve, and you are forced onto the next rung."]},
+ drill:{q:"A star's parallax is 0.05″. Its distance is:",opts:["5 pc","20 pc","50 pc","0.05 pc"],truth:1},
+ prompt:"This is the one distance measured without assuming anything about the object. Why will that matter so much in Session 11?"},
+
+{n:5,title:"Colour is a thermometer",ioaa:"Ch. 5 — Physics of Stars",tool:null,
+ hook:"An iron bar in a forge glows dull red, then orange, then white. Stars are not made of iron, and it makes no difference.",
+ q:"A blue-white star compared with a red one is:",opts:["Larger","Hotter","Closer","Younger"],truth:1,sim:"colour_temp",
+ notice:"Sweep from 2500 K to 30000 K. Find the temperature where the star looks most like our Sun.",
+ law:{name:"Thermal radiation",eq:"colour  ←  temperature,  not composition",
+  terms:[["blackbody","an idealised object that absorbs everything landing on it and re-radiates purely according to its temperature. Stars are very nearly this."],
+         ["the spectrum","a broad continuous glow across all wavelengths — <b>not</b> a single colour."],
+         ["colour","which wavelengths dominate that glow. That balance is set by temperature alone."]],
+  why:["Inside any hot object, particles jostle chaotically. Accelerating charges radiate, so the object glows. Crucially, the <em>distribution</em> of that glow depends only on how vigorous the jostling is — which is exactly what temperature measures.",
+       "This is why the forge works as an analogy despite iron and hydrogen having nothing in common. Heat anything densely enough and it forgets what it is made of, radiating by temperature alone.",
+       "It also explains why the effect looks like a colour <em>shift</em> rather than a colour <em>change</em>. Every hot star emits some red and some blue. What changes is the proportion.",
+       "The practical payoff is enormous. Photograph a star through two filters — say blue and yellow — and compare the two brightnesses. That single ratio, the <em>colour index</em>, gives you the surface temperature of something you will never visit.",
+       "<em>You have just measured a physical property of a distant object using nothing but the ratio of two photographs.</em>"]},
+ fact:{body:["Every non-contact thermometer works on this. The forehead scanner reads infrared glow and converts colour balance to temperature — the identical physics, aimed 30 cm instead of 30 light years.",
+  "Blacksmiths judged forge temperature by colour centuries before anyone could write the equation, and the traditional colour names still map onto real temperatures: dull red near 700 °C, cherry red around 800, white heat past 1300.",
+  "Your camera's 'white balance' setting is quoted in <b>kelvin</b> for the same reason. Setting it to 5500 K is telling the camera to assume daylight — light from a 5,500 K blackbody, which is to say the Sun."]},
+ drill:{q:"Two stars look equally bright, but one is blue and one is red. The blue one must be:",opts:["Closer","Hotter, so smaller or further away","Larger","Made of different elements"],truth:1},
+ prompt:"Colour survives the journey across the galaxy. Brightness doesn't. What makes the difference?"},
+
+{n:6,title:"Where the peak falls",ioaa:"Ch. 5 — Physics of Stars",tool:null,
+ hook:"A star doesn't emit one colour. It emits all of them — just not equally.",
+ q:"Heat a star up. Its peak wavelength:",opts:["Moves toward red","Moves toward blue","Stays put; the curve just rises","Splits in two"],truth:1,sim:"wien",
+ notice:"Watch the shaded visible band. At 25000 K, where has most of the output gone?",
+ law:{name:"Wien's displacement law",eq:"λ_max · T  =  2.898 × 10⁻³  m·K",
+  terms:[["λ_max","the wavelength where the star's output peaks — the brightest part of its glow."],
+         ["T","surface temperature in kelvin."],
+         ["2.898 × 10⁻³","<b>Wien's constant</b>, in metre-kelvin. Not adjustable; it comes out of quantum mechanics."],
+         ["the product","always the same number. So λ_max and T are <b>inversely</b> proportional — one rises, the other must fall."]],
+  why:["The blackbody curve always has the same shape. Change the temperature and you do not reshape it — you <em>slide and scale</em> it. Wien's law simply says where the peak lands.",
+       "The intuition runs through photon energy. A photon carries E = hc/λ, so short wavelength means high energy. A hotter object has more energetic particles available, so it can produce more energetic photons — which is to say shorter wavelengths. Peak moves left.",
+       "Why an exact inverse rather than some other falloff? Because the underlying physics contains only one characteristic energy scale, kT. Set that against photon energy hc/λ and the ratio hc/λkT governs everything. Hold that ratio fixed at the peak and λ_max × T must be constant. <em>The constant is essentially hc/k, tidied up.</em>",
+       "Practically, this turns a graph into a number. Find the peak, divide it into 2.898 × 10⁻³, and you have a temperature — no assumptions about size, distance, or composition."]},
+ fact:{body:["You are a blackbody at about 310 K. Run the numbers: 2.898 × 10⁻³ / 310 gives roughly <b>9.4 micrometres</b> — mid-infrared. Which is exactly the band thermal cameras are built to detect, and exactly what pit vipers evolved to sense. <em>Snakes are doing Wien's law to find you.</em>",
+  "It is also why remote controls, night-vision gear, and the CO₂ molecule all care about this stretch of spectrum. Earth's surface radiates near 10 µm, greenhouse gases absorb there, and the whole climate question lives in that overlap.",
+  "The universe itself has a temperature: the cosmic microwave background peaks at 1.06 mm, giving <b>2.725 K</b>. It is the most perfect blackbody ever measured — the leftover glow of the Big Bang, still obeying this equation."]},
+ drill:{q:"The Sun peaks near 500 nm. A star peaking at 250 nm is roughly:",opts:["Half the Sun's temperature","The same","Twice the Sun's temperature","Four times the Sun's temperature"],truth:2},
+ prompt:"Your eyes see 380–700 nm. Look at where the Sun's peak sits. Coincidence?"},
+
+{n:7,title:"Size and heat, together",ioaa:"Ch. 5 — Physics of Stars",tool:null,
+ hook:"You can now read a star's temperature. You still cannot say how much light it actually makes.",
+ q:"Double a star's temperature, holding size fixed. Its luminosity rises by:",opts:["2×","4×","8×","16×"],truth:3,sim:"stefan",
+ notice:"Build a star with half the Sun's radius but twice its temperature. Brighter or fainter than the Sun?",
+ law:{name:"The Stefan–Boltzmann law",eq:"L  =  4πR² · σT⁴",
+  terms:[["L","luminosity — total power radiated, in watts. <b>The intrinsic quantity you have been chasing since Session 1.</b>"],
+         ["4πR²","the star's surface area. Every square metre radiates."],
+         ["σ","the Stefan–Boltzmann constant, 5.67 × 10⁻⁸ W m⁻² K⁻⁴."],
+         ["T⁴","power radiated per square metre. <b>The fourth power is where all the drama is.</b>"]],
+  why:["The structure is simply <em>area × power per unit area</em>. A sphere's area is 4πR², and each patch of surface radiates σT⁴ watts. Multiply.",
+       "So why T⁴ rather than T? Raise the temperature and three effects compound at once. More photons are emitted. Each carries more energy (shorter wavelength, from Session 6). And the whole curve broadens. Integrate the Planck curve across every wavelength and those effects multiply out to the fourth power.",
+       "Hold that in your hands for a moment. Double the temperature and you get <em>sixteen</em> times the light from the same sphere. Temperature does not merely matter more than size — it overwhelms it.",
+       "And this closes the loop. Session 6 gave you T from colour. This gives you L from T and R. Session 1's equation then gives you distance from L and b. <em>The two-unknowns trap has a way out after all.</em>",
+       "One honest caveat: you still need R, which is hard. Sessions 10 and 12 are two different escapes from that."]},
+ fact:{body:["Betelgeuse is <em>cool</em> — about 3,600 K, well under the Sun's 5,772. Yet it shines roughly 100,000× brighter, because its radius is around 900 solar radii. Drop it where the Sun is and it would swallow Mars. <b>Sheer size beating temperature, the hard way.</b>",
+  "This equation also sets Earth's temperature. Our planet must radiate away exactly what it absorbs; solve that balance and you get about 255 K. We sit at 288 K instead, and that 33-degree gap <em>is</em> the greenhouse effect — one of the most consequential numbers in science, straight out of this line.",
+  "It is why old filament bulbs were so wasteful, too. A tungsten filament near 2,800 K peaks deep in the infrared, so most of its output leaves as heat you cannot see."]},
+ drill:{q:"A star with the Sun's temperature but 10× its radius has luminosity:",opts:["10 L☉","100 L☉","1000 L☉","10000 L☉"],truth:1},
+ prompt:"A red giant is cool yet enormously luminous. Using this equation, what must be true of its radius?"},
+
+{n:8,title:"Dark lines, and what they confess",ioaa:"Ch. 5 — Physics of Stars",tool:null,
+ hook:"Split starlight through a prism and the rainbow is interrupted — narrow dark gaps at precise, repeatable wavelengths.",
+ q:"Those dark lines are caused by:",opts:["Dust between us and the star","Atoms in the star's atmosphere absorbing specific wavelengths","Genuine gaps in the star's output","Limitations of the detector"],truth:1,sim:"spectrum",
+ notice:"Sweep the temperature. Hydrogen peaks near 9,500 K and fades both ways — yet every one of these stars is mostly hydrogen.",
+ law:{name:"Atomic absorption",eq:"ΔE  =  hc / λ      →   each element, a fixed set of λ",
+  terms:[["ΔE","the energy gap between two electron levels in an atom. <b>Fixed by the element's structure.</b>"],
+         ["h, c","Planck's constant and the speed of light — universal, never negotiable."],
+         ["λ","the wavelength of a photon carrying exactly ΔE. <b>Only this photon gets absorbed.</b>"]],
+  why:["An electron in an atom cannot sit at just any energy. It occupies discrete levels, like stairs rather than a ramp. To jump up, it must absorb a photon carrying <em>exactly</em> the gap — no more, no less.",
+       "Since E = hc/λ, that exact energy corresponds to an exact wavelength. Light of that colour gets removed from the beam; everything else sails through. Hence a dark line at a precise position.",
+       "Because every element has its own arrangement of levels, every element removes its own signature set of wavelengths. <em>Line positions are an identity document.</em>",
+       "Now the trap that cost early astronomers decades. Line <em>strength</em> does not measure how much of an element is present. It measures how many of its atoms are currently in the right state to make that particular jump — and that depends overwhelmingly on temperature.",
+       "Hydrogen's visible lines need an electron already sitting on the second rung. Too cool and almost none are; too hot and the atom is stripped bare. Only near 9,500 K does the population peak. <em>Weak hydrogen lines mean the wrong temperature, not a shortage of hydrogen.</em>"]},
+ fact:{body:["In 1868, astronomers found a spectral line in the Sun matching no known element. They named the substance after Helios. <b>Helium was discovered in a star 27 years before anyone found it on Earth</b> — the only element ever identified off-world first.",
+  "In 1925 Cecilia Payne concluded from exactly this reasoning that stars are overwhelmingly hydrogen. It contradicted the consensus that stars matched Earth's composition, and she was pressured into calling her own result unlikely. She was completely right, and it is now considered among the most important doctoral theses in astronomy.",
+  "The same technique reads the air of planets orbiting other stars. When a planet transits, a sliver of starlight filters through its atmosphere and comes back with new lines. <em>That is how we detect water vapour on worlds hundreds of light years away.</em>"]},
+ drill:{q:"A cool star shows weak hydrogen lines. The best conclusion is:",opts:["It contains little hydrogen","Its hydrogen is too cool to absorb strongly","Dust is hiding the lines","Hydrogen only forms in hot stars"],truth:1},
+ prompt:"What does this sim suggest made Payne's claim so hard for her contemporaries to accept?"},
+
+{n:9,title:"Lines that slide",ioaa:"Ch. 6 — Stellar Observations",tool:null,
+ hook:"Compare a star's spectrum with the same elements measured in a laboratory. The pattern matches exactly — but the whole thing has moved.",
+ q:"The pattern shifted toward longer wavelengths means the star is:",opts:["Cooler than the lab sample","Moving away from us","Moving across our line of sight","Larger"],truth:1,sim:"doppler",
+ notice:"Set velocity to zero, then drag. Does the spacing between lines change, or only their position?",
+ law:{name:"The Doppler shift",eq:"Δλ / λ₀  ≈  v / c",
+  terms:[["λ₀","the rest wavelength — where the line sits in a laboratory, at rest."],
+         ["Δλ","how far it has moved. Positive means redshift (receding); negative, blueshift."],
+         ["v","<b>radial</b> velocity only — the component along your line of sight."],
+         ["c","the speed of light. (This form holds while v is well below c.)"]],
+  why:["A source emits one wave crest per period T. If it is also retreating at speed v, then by the time the next crest leaves, the source has moved v·T further away — so that crest has extra ground to cover, and the gap between crests stretches by exactly v·T.",
+       "The original wavelength was λ₀ = c·T. So the fractional stretch is (v·T)/(c·T) = <em>v/c</em>. The periods cancel, which is why the result is so clean.",
+       "Notice what this means: the shift is <em>fractional</em>, not fixed. Every line moves by the same percentage, so the whole fingerprint slides rigidly without distorting. That rigidity is what makes it measurable at all — you recognise the pattern first, then read off how far it travelled.",
+       "And notice the blind spot. Only motion toward or away registers. A star tearing across your line of sight at enormous speed produces <em>no shift whatsoever</em>. This equation is honest about what it cannot see."]},
+ fact:{body:["Police radar and weather Doppler are this equation with radio waves. So is the pitch drop of a passing siren — sound, not light, but identical geometry.",
+  "It is also how we found the first planet around a sun-like star. A planet tugs its star into a small circle; the star's lines wobble by a few metres per second. Mayor and Queloz caught 51 Pegasi b this way in 1995 and shared the <b>2019 Nobel Prize</b>. Detecting a 50 m/s wobble means measuring Δλ/λ of about 0.00000017.",
+  "And on the largest scale, Hubble found nearly every galaxy redshifted — <em>the observation that told us the universe is expanding</em>. Session 11's top rung is built on this line."]},
+ drill:{q:"A line at 500.0 nm is observed at 500.5 nm. The star recedes at roughly:",opts:["30 km/s","300 km/s","3000 km/s","0.5 km/s"],truth:1},
+ prompt:"This measures velocity, not distance. Hold that thought — it becomes the ladder's last rung."},
+
+{n:10,title:"A star that keeps time",ioaa:"Ch. 7 — Binaries &amp; Variables",tool:null,
+ hook:"Some stars pulse — swelling and shrinking on a strict schedule, days to months, never varying.",
+ q:"Henrietta Leavitt's 1912 discovery was that a Cepheid's period is tied to its:",
+ opts:["Distance","Temperature","True luminosity","Chemical composition"],truth:2,sim:"cepheid",
+ notice:"Longer period, brighter star. Ask yourself why timing a duration is so much easier than measuring a distance.",
+ law:{name:"The Leavitt law",eq:"M  ≈  −2.81 log₁₀ P  −  1.43",
+  terms:[["P","the pulsation period in days. <b>Measured with a clock and patience — nothing else.</b>"],
+         ["M","absolute magnitude. The intrinsic quantity that has been out of reach all act."],
+         ["the constants","calibrated empirically — and calibrated using <b>parallax</b> distances to nearby Cepheids."]],
+  why:["A Cepheid pulses because its outer layers act as a valve. Helium ionises, becomes opaque, traps heat, and the star swells; the expansion cools it, the helium recombines, the layer turns transparent, heat escapes and it collapses back. Repeat, indefinitely.",
+       "The period is set by how long a pressure wave takes to cross the star — its <em>dynamical timescale</em>. Bigger, puffier stars have longer crossing times. And bigger stars, by Session 7's L = 4πR²σT⁴, are more luminous. <em>So period and luminosity are linked through size.</em>",
+       "Leavitt's genius was where she looked. She studied Cepheids in the Small Magellanic Cloud — all at essentially the same distance from us. That one choice cancels distance out of the comparison entirely, so differences in apparent brightness had to be <b>real differences in the stars</b>.",
+       "Then feed it forward. Time the pulse → get M. Photograph it → get m. Session 3's distance modulus → get d. <em>Parallax's range limit has just been shattered.</em>",
+       "But look closely at what those constants rest on. To convert Leavitt's relative pattern into absolute magnitudes, someone had to know the true distance to at least one Cepheid — and that came from parallax. <em>The new rung is bolted to the old one.</em>"]},
+ fact:{body:["In 1923 Edwin Hubble found a Cepheid in what was then called the Andromeda Nebula, timed it, and calculated a distance far beyond the Milky Way. <b>That single star ended the Great Debate</b> and revealed that our galaxy is one among billions. The universe got unimaginably larger because someone measured a period.",
+  "Leavitt was employed at Harvard as a 'computer' at 30 cents an hour, examining photographic plates. She was not permitted to operate the telescope. She catalogued over 2,400 variable stars and found the relation that made modern cosmology possible.",
+  "A Swedish mathematician began preparing her Nobel nomination in 1925, unaware she had died of cancer four years earlier. <em>The prize cannot be awarded posthumously.</em>"]},
+ drill:{q:"Why couldn't Leavitt have found this using Cepheids scattered across our own sky?",opts:["They would be too faint","Their differing distances would scramble the apparent-brightness pattern","There are too few of them","Their periods would be too long"],truth:1},
+ prompt:"What did the plates let her see that the eyepiece never could?"},
+
+{n:11,title:"The ladder",ioaa:"Ch. 9 — Intergalactic Astrophysics",tool:null,
+ hook:"No single technique reaches from the Moon to a distant galaxy. So we chain them.",
+ q:"Each method on the ladder is calibrated using:",opts:["Theory alone","Laboratory measurement","The method below it on the ladder","Independent satellite data"],truth:2,sim:"ladder",
+ notice:"Slide across the full range and find the overlaps. Those are where calibration happens — and where errors are inherited.",
+ law:{name:"The cosmic distance ladder",eq:"geometry  →  standard candles  →  redshift",
+  terms:[["geometry","radar and parallax. Assumes nothing about the object. <b>Reaches a few thousand parsecs.</b>"],
+         ["standard candles","Cepheids, then Type Ia supernovae. Objects whose true luminosity is knowable."],
+         ["redshift","Session 9's Doppler shift plus Hubble's law. Reaches everything else."],
+         ["the overlaps","<b>where each rung is calibrated against the one below.</b> The joints are the whole structure."]],
+  why:["Every method has a range. Parallax dies when the angle shrinks below your resolution. Cepheids die when they become too faint to resolve individually. So you splice.",
+       "The splice happens in the overlap. In a region reachable by <em>both</em> parallax and Cepheids, measure the same stars twice. Parallax gives true distances, which fixes Leavitt's constants. Now Cepheids work standalone — out to where supernovae take over, and the same trick repeats.",
+       "This makes the ladder <em>hierarchical, not independent</em>. Each rung inherits every assumption and every error beneath it. A 5% systematic error in parallax propagates, undiluted, all the way to the most distant galaxy measured.",
+       "Which is why an enormous amount of astronomy is spent obsessing over the bottom rungs. Gaia's parallaxes are not just about nearby stars — <em>they are the foundation the entire universe is measured from.</em>",
+       "And it is why 'how far away is it' is almost never a simple question. Behind every distance is a chain, and the chain has a history."]},
+ fact:{body:["Right now this ladder is at the centre of an unresolved crisis. Climb it rung by rung and you measure the universe's expansion rate at about <b>73 km/s/Mpc</b>. Derive it instead from the cosmic microwave background and early-universe physics, and you get about <b>67</b>. Both methods are exquisitely precise. Both cannot be right.",
+  "This is the <em>Hubble tension</em>, and it has resisted every attempt to explain it away for over a decade. Either there is a subtle flaw somewhere in the ladder — or our model of the universe is missing something fundamental.",
+  "It is a genuinely live problem, not settled textbook material. Somebody currently alive will resolve it."]},
+ drill:{q:"If parallax measurements were found to be systematically 5% off, distances to far galaxies would:",opts:["Be unaffected — different method","Inherit the 5% error all the way up","Only change for nearby stars","Change unpredictably"],truth:1},
+ prompt:"Which rung would you least like to be wrong, and why?"},
+
+{n:12,title:"Plot what you measured",ioaa:"Ch. 5 — Physics of Stars",tool:null,
+ hook:"You can now measure a star's temperature and its true luminosity. That is two numbers. Two numbers make a graph.",
+ q:"Plotting many stars by temperature and luminosity will most likely give:",opts:["Random scatter","A single tight line","Structure — bands and clumps","A circle"],truth:2,sim:"hr",
+ notice:"Add stars one at a time. Note the exact point where you stop seeing noise and start seeing structure.",
+ law:{name:"The Hertzsprung–Russell diagram",eq:"L  vs.  T      (plotted, not derived)",
+  terms:[["horizontal","temperature — <b>plotted backwards</b>, hot on the left, by historical accident."],
+         ["vertical","luminosity, on a logarithmic scale spanning a factor of a billion."],
+         ["the diagonal","the <b>main sequence</b>. Around 90% of all stars live on it."],
+         ["the outliers","giants above right; white dwarfs below left."]],
+  why:["This is not a law. Nobody derived it. Hertzsprung and Russell independently plotted two measured quantities around 1911 and found the sky was <em>not</em> filled uniformly — stars cluster along a narrow band with a few distinct outposts.",
+       "Structure in a scatter plot means a hidden variable is doing the organising. Here it is <b>mass</b>. A star on the main sequence is fusing hydrogen in its core, and its mass alone sets almost everything else — position along that diagonal is essentially a mass axis in disguise.",
+       "The outliers are the same physics at different life stages. Top-right: cool but enormously luminous, which by Session 7 forces a vast radius — red giants, stars that exhausted their core hydrogen and swelled. Bottom-left: blazing hot yet feeble, forcing a tiny radius — white dwarfs, the exposed cores left behind.",
+       "So the diagram is secretly a <em>map of stellar life</em>, though that took another thirty years to understand. Act II is the physics that explains this shape.",
+       "And every axis here was earned. Temperature came from colour (Sessions 5–6). Luminosity came from Stefan–Boltzmann and the distance ladder (Sessions 7, 10, 11). <em>You built both axes from a smudge of light.</em>"]},
+ fact:{body:["Plot a single star cluster on this diagram and you can <b>read off its age</b>. All its stars formed together; massive ones burn out first, peeling away from the top of the main sequence. Where the diagonal ends — the <em>turnoff point</em> — tells you how long it has been.",
+  "Run that on globular clusters and you get ages around 12–13 billion years. That number sits uncomfortably close to the age of the universe from cosmology, and for much of the 20th century some clusters came out <em>older</em> than the universe itself. Resolving that paradox drove serious work on both sides.",
+  "The diagram is over a century old and still the first thing an astronomer draws. <em>It has never been superseded — only filled in.</em>"]},
+ drill:{q:"A star sits top-right: cool, yet highly luminous. From L = 4πR²σT⁴ it must be:",opts:["Very small","Very large","Very close","Very young"],truth:1},
+ prompt:"Act I asked one question: how do we know anything? Write the chain — from a smudge of light to a star's true nature."}
+];
+
+const TOOLS={
+ logs:{title:"Tool — logarithms",
+  body:"A logarithm answers one question: <b>what power do I raise 10 to, in order to get this number?</b> log 100 = 2, because 10² = 100. log 1000 = 3. log 1 = 0.<br><br>Its usefulness here is a single property: <b>log(a × b) = log a + log b</b>. Multiplying inside becomes adding outside. So a brightness ratio of 100 × 100 turns into a magnitude gap of 5 + 5 — which is why huge ranges compress into small, comparable numbers."},
+ trig:{title:"Tool — the small-angle approximation",
+  body:"For a very small angle θ measured in <b>radians</b>, tan θ ≈ sin θ ≈ θ.<br><br>Why: a tiny slice of a circle's edge is indistinguishable from a straight line, so the arc and the opposite side of the triangle become the same length. Astronomical angles are fractions of an arcsecond, far smaller than anything this breaks at — so a messy triangle collapses into plain division. This approximation is doing quiet work behind most of the geometry in this act."}
+};
+let cur=Math.min(SESSIONS.length-1,Store.get("cur",0));
+const main=document.getElementById("main");
+
+function frames(){
+  const f=document.getElementById("frames");f.innerHTML="";
+  SESSIONS.forEach((s,i)=>{const b=document.createElement("button");
+    b.className="frame"+(Store.get("done"+s.n,false)?" done":"")+(i===cur?" now":"");
+    b.innerHTML='<span class="dot"></span><span class="num">'+String(s.n).padStart(2,"0")+'</span>';
+    b.setAttribute("aria-label","Session "+s.n+": "+s.title.replace(/&amp;/g,"and"));
+    b.title="Session "+s.n+" — "+s.title;
+    b.onclick=()=>{cur=i;Store.set("cur",i);render();window.scrollTo(0,0)};f.appendChild(b)});
+  document.getElementById("fcount").textContent=SESSIONS.filter(s=>Store.get("done"+s.n,false)).length+" of 12 logged";
+}
+
+function render(){
+  const s=SESSIONS[cur];frames();
+  const picked=Store.get("pick"+s.n,null),drilled=Store.get("drill"+s.n,null),lawOpen=Store.get("law"+s.n,false);
+  const terms=s.law.terms.map(t=>`<div class="term"><span class="sym">${t[0]}</span><span class="def">${t[1]}</span></div>`).join("");
+  const why=s.law.why.map(p=>`<p>${p}</p>`).join("");
+  const fact=s.fact.body.map(p=>`<p>${p}</p>`).join("");
+  main.innerHTML=`
+  <div class="eyebrow"><span>Session ${String(s.n).padStart(2,"0")}</span><span class="tag">${s.ioaa}</span><span>≈12 min</span></div>
+  <h2 class="title">${s.title}</h2>
+  <p class="hook">${s.hook}</p>
+
+  <section class="stage"><div class="stage-label"><span>1 · Predict</span><span>commit before you touch anything</span></div>
+    <p class="q">${s.q}</p><div class="opts" id="opts"></div><p class="verdict" id="verdict" hidden></p></section>
+
+  <section class="stage" id="st2" ${picked===null?"hidden":""}>
+    <div class="stage-label"><span>2 · Sandbox</span><span>go and check</span></div>
+    <div class="sim"><canvas id="cv"></canvas><div class="ctrls" id="ctrls"></div><div class="readout" id="ro"></div></div>
+    <p class="notice">${s.notice}</p>
+    <div class="row"><button class="act" id="toLaw">I've seen enough →</button></div></section>
+
+  <section class="stage" id="st3" ${lawOpen?"":"hidden"}>
+    <div class="stage-label"><span>3 · Compress</span><span>the short way to write what you just saw</span></div>
+    <div class="law"><p class="name">${s.law.name}</p><p class="eq">${s.law.eq}</p>
+      <div class="terms">${terms}</div></div>
+    <div class="why"><h4>Why it takes this shape</h4>${why}</div>
+    ${s.tool?`<div class="tool"><h4>${TOOLS[s.tool].title}</h4><p>${TOOLS[s.tool].body}</p>
+      <div class="row"><button class="act ghost" id="skipTool">I know this — hide it</button></div></div>`:""}
+    <div class="wild"><h4>◈ Out there in the world</h4>${fact}</div>
+    <p class="q" style="margin-top:26px">${s.drill.q}</p><div class="opts" id="drill"></div></section>
+
+  <section class="stage" id="st4" ${drilled===null?"hidden":""}>
+    <div class="stage-label"><span>4 · Log</span><span>one line, your words</span></div>
+    <p class="prompt-note">${s.prompt}</p>
+    <textarea id="note" placeholder="Write it as if explaining to someone who wasn't here…">${(Store.get("note"+s.n,"")+"").replace(/</g,"&lt;")}</textarea>
+    <div class="row"><button class="act" id="save">Save to log</button><span class="saved" id="savedMsg" hidden>Logged ✦</span>
+      ${cur<SESSIONS.length-1?'<button class="act ghost" id="next">Next session →</button>':''}</div></section>`;
+
+  const ob=document.getElementById("opts");
+  s.opts.forEach((t,i)=>{const b=document.createElement("button");b.className="opt";
+    b.innerHTML=`<span class="k">${"ABCD"[i]}</span><span>${t}</span>`;
+    if(picked!==null){b.disabled=true;if(i===picked)b.classList.add("picked");if(i===s.truth)b.classList.add("truth")}
+    b.onclick=()=>{Store.set("pick"+s.n,i);render();
+      setTimeout(()=>document.getElementById("st2").scrollIntoView({behavior:"smooth",block:"start"}),60)};
+    ob.appendChild(b)});
+  if(picked!==null){const vd=document.getElementById("verdict");vd.hidden=false;
+    vd.className="verdict "+(picked===s.truth?"hit":"miss");
+    vd.textContent=picked===s.truth?"You called it — now go find out why":"Not quite. Good — go find where it breaks"}
+
+  if(picked!==null)mountSim(s);
+
+  const tl=document.getElementById("toLaw");
+  if(tl)tl.onclick=()=>{Store.set("law"+s.n,true);render();
+    setTimeout(()=>document.getElementById("st3").scrollIntoView({behavior:"smooth",block:"start"}),60)};
+  const sk=document.getElementById("skipTool");if(sk)sk.onclick=()=>sk.closest(".tool").remove();
+
+  const db=document.getElementById("drill");
+  if(db)s.drill.opts.forEach((t,i)=>{const b=document.createElement("button");b.className="opt";
+    b.innerHTML=`<span class="k">${"ABCD"[i]}</span><span>${t}</span>`;
+    if(drilled!==null){b.disabled=true;if(i===drilled)b.classList.add("picked");if(i===s.drill.truth)b.classList.add("truth")}
+    b.onclick=()=>{Store.set("drill"+s.n,i);render();
+      setTimeout(()=>document.getElementById("st4").scrollIntoView({behavior:"smooth",block:"start"}),60)};
+    db.appendChild(b)});
+
+  const sv=document.getElementById("save");
+  if(sv)sv.onclick=()=>{Store.set("note"+s.n,document.getElementById("note").value);
+    Store.set("done"+s.n,true);document.getElementById("savedMsg").hidden=false;frames()};
+  const nx=document.getElementById("next");
+  if(nx)nx.onclick=()=>{Store.set("note"+s.n,document.getElementById("note").value);
+    Store.set("done"+s.n,true);cur++;Store.set("cur",cur);render();window.scrollTo(0,0)};
+}
+
+function mountSim(s){
+  const sim=SIMS[s.sim],cv=document.getElementById("cv"),ctx=cv.getContext("2d");
+  if(!ctx)return;
+  const v={};sim.ctrls.forEach(c=>v[c.id]=c.val);
+  const cb=document.getElementById("ctrls");
+  sim.ctrls.forEach(c=>{const d=document.createElement("div");d.className="ctrl";
+    d.innerHTML=`<label for="c_${c.id}">${c.label}<b id="v_${c.id}">${c.id==="logd"?Math.pow(10,c.val).toExponential(1):c.val}${c.unit}</b></label>
+      <input type="range" id="c_${c.id}" min="${c.min}" max="${c.max}" step="${c.step}" value="${c.val}">`;
+    cb.appendChild(d);
+    d.querySelector("input").addEventListener("input",e=>{v[c.id]=parseFloat(e.target.value);
+      document.getElementById("v_"+c.id).textContent=(c.id==="logd"?Math.pow(10,v[c.id]).toExponential(1):v[c.id])+c.unit;paint()})});
+  function paint(){const dpr=window.devicePixelRatio||1,w=cv.clientWidth||600,
+    h=Math.round(Math.min(300,Math.max(215,w*.53)));
+    cv.width=w*dpr;cv.height=h*dpr;cv.style.height=h+"px";
+    ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,w,h);
+    sim.draw(ctx,w,h,v);document.getElementById("ro").innerHTML=sim.read(v)}
+  paint();window.addEventListener("resize",paint,{passive:true});
+}
+render();
+
+/* ---------- daily image from NASA APOD ---------- */
+const APOD=(()=>{
+  const el=document.getElementById("apod");
+  const today=new Date().toISOString().slice(0,10);
+  const CK="apod:"+today;
+  let expanded=false, data=null;
+
+  const esc=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+  function quiet(msg){
+    el.hidden=false;
+    el.innerHTML=`<div class="apod-head"><span>Today's sky</span></div><div class="apod-quiet">${msg}</div>`;
+  }
+
+  function paint(){
+    if(!data) return;
+    el.hidden=false;
+    const isVid=data.media_type==="video";
+    el.innerHTML=`
+      <div class="apod-head"><span>Today's sky</span><b>${esc(data.date)}</b></div>
+      <div class="apod-body">
+        ${data.url?`<div class="apod-img"><img src="${esc(data.url)}" alt="${esc(data.title)}" loading="lazy"></div>`:""}
+        <div class="apod-txt">
+          <h3>${esc(data.title)}</h3>
+          <p class="${expanded?"":"clip"}" id="apodText">${esc(data.explanation)}</p>
+          <div class="apod-meta">
+            <button id="apodMore">${expanded?"Show less":"Read more"}</button>
+            ${isVid&&data.link?`<a href="${esc(data.link)}" target="_blank" rel="noopener">Watch →</a>`:""}
+            ${data.hdurl?`<a href="${esc(data.hdurl)}" target="_blank" rel="noopener">Full size →</a>`:""}
+            ${data.copyright?`<span class="cr">© ${esc(data.copyright)}</span>`:`<span>Public domain · NASA</span>`}
+          </div>
+        </div>
+      </div>`;
+    const b=document.getElementById("apodMore");
+    if(b) b.onclick=()=>{expanded=!expanded;paint()};
+  }
+
+  async function load(){
+    // serve cached copy first so the panel works offline
+    try{
+      const c=localStorage.getItem(CK);
+      if(c){ data=JSON.parse(c); paint(); return; }
+    }catch(e){}
+    try{
+      const r=await fetch("/api/apod");
+      const j=await r.json();
+      if(!r.ok||j.error){
+        if(j.error==="no_key") return quiet("Daily image not connected yet. Add <code>NASA_API_KEY</code> in Netlify → Site settings → Environment variables, then redeploy.");
+        return stale(j.message||"Couldn't load today's image.");
+      }
+      data=j;
+      try{
+        Object.keys(localStorage).forEach(k=>{ if(k.startsWith("apod:")&&k!==CK) localStorage.removeItem(k); });
+        localStorage.setItem(CK,JSON.stringify(j));
+      }catch(e){}
+      paint();
+    }catch(e){
+      stale("Daily image needs the site running on Netlify — it won't load from a local file.");
+    }
+  }
+
+  function stale(msg){
+    try{
+      const old=Object.keys(localStorage).filter(k=>k.startsWith("apod:")).sort().pop();
+      if(old){ data=JSON.parse(localStorage.getItem(old)); paint(); return; }
+    }catch(e){}
+    quiet(msg);
+  }
+
+  return {load};
+})();
+APOD.load();
+</script>
+</body>
+</html>
