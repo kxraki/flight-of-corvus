@@ -2616,28 +2616,55 @@ const APOD=(()=>{
     if(b) b.onclick=()=>{expanded=!expanded;paint()};
   }
 
+  // Fallback key for hosts with no server function (e.g. GitHub Pages).
+  // Low-stakes: an APOD key only gates NASA's own rate limit, nothing sensitive.
+  const NASA_KEY_FALLBACK="Thz41bAxdx9HI5qQ8j2d8KnM34FdTfbahUy3Qz7v";
+
+  function shapeApod(d){
+    return {
+      date: d.date, title: d.title, explanation: d.explanation, media_type: d.media_type,
+      url: d.media_type==="video" ? (d.thumbnail_url||d.url) : d.url,
+      hdurl: d.hdurl||null,
+      link: d.media_type==="video" ? d.url : null,
+      copyright: d.copyright ? d.copyright.replace(/\s+/g," ").trim() : null
+    };
+  }
+
+  function cacheAndPaint(j){
+    data=j;
+    try{
+      Object.keys(localStorage).forEach(k=>{ if(k.startsWith("apod:")&&k!==CK) localStorage.removeItem(k); });
+      localStorage.setItem(CK,JSON.stringify(j));
+    }catch(e){}
+    paint();
+  }
+
+  async function loadDirect(){
+    try{
+      const r=await fetch(`https://api.nasa.gov/planetary/apod?api_key=${NASA_KEY_FALLBACK}&thumbs=true`);
+      if(r.status===429) return stale("NASA rate limit reached. Try again shortly.");
+      if(!r.ok) return stale(`NASA returned ${r.status}.`);
+      cacheAndPaint(shapeApod(await r.json()));
+    }catch(e){
+      stale("Couldn't reach NASA.");
+    }
+  }
+
   async function load(){
     // serve cached copy first so the panel works offline
     try{
       const c=localStorage.getItem(CK);
       if(c){ data=JSON.parse(c); paint(); return; }
     }catch(e){}
+    // prefer the server proxy (keeps the key server-side) when one exists;
+    // fall back to calling NASA directly (e.g. on GitHub Pages, or if the
+    // proxy errors, isn't configured, or this is a local file with no server)
     try{
       const r=await fetch("/api/apod");
       const j=await r.json();
-      if(!r.ok||j.error){
-        if(j.error==="no_key") return quiet("Daily image not connected yet. Add <code>NASA_API_KEY</code> in Netlify → Site settings → Environment variables, then redeploy.");
-        return stale(j.message||"Couldn't load today's image.");
-      }
-      data=j;
-      try{
-        Object.keys(localStorage).forEach(k=>{ if(k.startsWith("apod:")&&k!==CK) localStorage.removeItem(k); });
-        localStorage.setItem(CK,JSON.stringify(j));
-      }catch(e){}
-      paint();
-    }catch(e){
-      stale("Daily image needs the site running on Netlify — it won't load from a local file.");
-    }
+      if(r.ok && !j.error){ cacheAndPaint(j); return; }
+    }catch(e){}
+    loadDirect();
   }
 
   function stale(msg){
