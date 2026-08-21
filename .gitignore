@@ -1,0 +1,13 @@
+.env
+node_modules/
+
+# Local Netlify folder
+.netlify
+
+# Local dev logs
+netlify-dev.out.log
+netlify-dev.err.log
+
+# Source resource pack (large, not app content)
+YI Astrophysics Resources And Materials*.zip
+_resources/
