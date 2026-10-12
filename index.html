@@ -2609,7 +2609,7 @@ const APOD=(()=>{
     el.innerHTML=`
       <div class="apod-head"><span>Today's sky</span><b>${esc(data.date)}</b></div>
       <div class="apod-body">
-        ${data.url?`<div class="apod-img"><img src="${esc(data.url)}" alt="${esc(data.title)}" loading="lazy"></div>`:""}
+        ${data.url?`<div class="apod-img" id="apodImgWrap"><img id="apodImg" src="${esc(data.url)}" alt="${esc(data.title)}" loading="lazy"></div>`:""}
         <div class="apod-txt">
           <h3>${esc(data.title)}</h3>
           <p class="${expanded?"":"clip"}" id="apodText">${esc(data.explanation)}</p>
@@ -2623,6 +2623,16 @@ const APOD=(()=>{
       </div>`;
     const b=document.getElementById("apodMore");
     if(b) b.onclick=()=>{expanded=!expanded;paint()};
+    const img=document.getElementById("apodImg");
+    if(img) img.onerror=()=>{
+      // the fetched "image" didn't actually load (NASA's own API has been known
+      // to serve a broken/placeholder url) — drop the broken cache entry so the
+      // next visit retries instead of being stuck showing it, and degrade this
+      // view to text-only rather than a broken-image icon.
+      try{ if(localStorage.getItem(CK)===JSON.stringify(data)) localStorage.removeItem(CK); }catch(e){}
+      const wrap=document.getElementById("apodImgWrap");
+      if(wrap) wrap.remove();
+    };
   }
 
   // Fallback key for hosts with no server function (e.g. GitHub Pages).
